@@ -58,7 +58,7 @@ public class PylonController {
             taskService.startNewProcess(name,param1,param2);
             return "Process started successfully";
         }catch (Exception e){
-            return "Process failed to start";
+            return "Process failed to start " + e.getMessage();
         }
 
     }
@@ -106,7 +106,7 @@ public class PylonController {
             Data data = new Data();
             data.setAddress(slaveRepository.findAll().get(0).getAddress());
             data.setPid(task.getPid());
-            File file = new File(Config.get("data_path")+task.getName()+task.getInstance()+".txt");
+            File file = new File(Config.get("data_path")+task.getName().replace(".exe","")+task.getInstance()+".txt");
             BufferedReader br = new BufferedReader(new FileReader(file));
 
             String line;
@@ -126,6 +126,7 @@ public class PylonController {
         try{
             return  new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(taskService.getProcesses());
         }catch (Exception e){
+            e.printStackTrace();
             return "Failed to obtain list of processes";
         }
     }
