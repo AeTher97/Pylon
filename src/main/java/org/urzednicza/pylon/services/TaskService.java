@@ -8,8 +8,6 @@ import com.sun.jna.platform.win32.WinNT;
 import java.io.BufferedReader;
 import java.io.File;
 
-import org.apache.tomcat.jni.Buffer;
-import org.apache.tomcat.jni.Proc;
 import org.springframework.stereotype.Service;
 import org.urzednicza.pylon.Repositories.TaskRepository;
 import org.urzednicza.pylon.config.Config;
@@ -34,18 +32,17 @@ public class TaskService {
 
         List<Task> tasks = taskRepository.findAllByName(task.getName());
         int number = tasks.size();
-        System.out.println(number);
         if(task.getInstance() ==-1)
             task.setInstance(number);
 
         String dataPath = Config.get("data_path") + task.getName().replace(".exe","") + task.getInstance() + ".txt";
+        task.setPath(dataPath);
 
-        System.out.println(dataPath);
 
-        ProcessBuilder pb = new ProcessBuilder(Config.get("programs_path") + task.getName(),task.getParam1(),task.getParam2());
+        ProcessBuilder pb = new ProcessBuilder(Config.get("programs_path") + task.getName(),task.getSeed(),task.getPath());
+        pb.directory(location);
         try {
             Process p = pb.start();
-            System.out.println("cmd /C cd " + Config.get("programs_path") +" && " + task.getName());
             Field f = p.getClass().getDeclaredField("handle");
             f.setAccessible(true);
             long handl = f.getLong(p);
@@ -66,12 +63,11 @@ public class TaskService {
         }
     }
 
-    public void startNewProcess(String programName,String param1,String param2) throws Exception{
+    public void startNewProcess(String programName,String seed) throws Exception{
         Task task = new Task();
         task.setInstance(-1);
         task.setName(programName);
-        task.setParam1(param1);
-        task.setParam2(param2);
+        task.setSeed(seed);
         startProcess(task);
         taskRepository.save(task);
     }

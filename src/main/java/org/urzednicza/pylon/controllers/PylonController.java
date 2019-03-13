@@ -28,10 +28,7 @@ public class PylonController {
         this.taskService = taskService;
     }
 
-    @GetMapping
-    public String welcome(){
-        return "Pylon is here";
-    }
+
 
     @GetMapping("/id")
     public String id()
@@ -51,11 +48,11 @@ public class PylonController {
     }
 
     @GetMapping("/launch")
-    public String startProcess(@RequestParam("name") String name,@RequestParam(value = "param1",required = false) String param1,@RequestParam(value = "param2",required = false) String param2){
+    public String startProcess(@RequestParam("name") String name,@RequestParam(value = "seed",required = false) String seed){
 
         try
         {
-            taskService.startNewProcess(name,param1,param2);
+            taskService.startNewProcess(name,seed);
             return "Process started successfully";
         }catch (Exception e){
             return "Process failed to start " + e.getMessage();
@@ -106,7 +103,7 @@ public class PylonController {
             Data data = new Data();
             data.setAddress(slaveRepository.findAll().get(0).getAddress());
             data.setPid(task.getPid());
-            File file = new File(Config.get("data_path")+task.getName().replace(".exe","")+task.getInstance()+".txt");
+            File file = new File(task.getPath());
             BufferedReader br = new BufferedReader(new FileReader(file));
 
             String line;

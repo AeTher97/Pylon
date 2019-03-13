@@ -11,8 +11,8 @@ public class Task {
     private String Status;
     private String name;
     private int instance;
-    private String param1;
-    private String param2;
+    private String path;
+    private String seed;
 
     public void setStatus(String status) {
         Status = status;
@@ -42,20 +42,20 @@ public class Task {
         return name;
     }
 
-    public void setParam1(String param1) {
-        this.param1 = param1;
+    public void setPath(String path) {
+        this.path = path;
     }
 
-    public void setParam2(String param2) {
-        this.param2 = param2;
+    public void setSeed(String seed) {
+        this.seed = seed;
     }
 
-    public String getParam1() {
-        return param1;
+    public String getPath() {
+        return path;
     }
 
-    public String getParam2() {
-        return param2;
+    public String getSeed() {
+        return seed;
     }
 
     public String getStatus() {

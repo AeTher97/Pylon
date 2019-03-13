@@ -3,6 +3,7 @@ package org.urzednicza.pylon.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinNT;
+import net.bytebuddy.matcher.CollectionOneToOneMatcher;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
@@ -86,7 +87,7 @@ public class ApplicationService {
         RestTemplate restTemplate = new RestTemplate();
         Slave slave = new Slave();
         slave.setAddress(address);
-
+        System.out.println(Config.get("Nexus_url"));
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
