@@ -1,6 +1,7 @@
 package org.urzednicza.pylon.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -34,12 +35,13 @@ public class PylonController {
     public String id()
     { return slaveRepository.findAll().get(0).getId().toString();}
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String uploadProgram(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes){
 
         String path = Config.get("programs_path")+ file.getOriginalFilename();
         try {
             Files.copy(file.getInputStream(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
+            return "Uploaded successfully";
         }catch (Exception e)
         {
             e.printStackTrace();
@@ -95,13 +97,38 @@ public class PylonController {
 
     }
 
+    @GetMapping("/files")
+    public String getFiles(){
+        try {
+            File folder = new File(Config.get("programs_path"));
+            File[] listOfFiles = folder.listFiles();
+
+            StringBuilder list = new StringBuilder();
+
+            for (File file : listOfFiles) {
+                list.append(file.getName());
+                list.append("\n");
+            }
+
+            return list.toString();
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            return "Couldn't get files list";
+        }
+    }
+
     @GetMapping("/data")
     public String getData(@RequestParam("name") String name, @RequestParam("instance") int instance){
         try{
             StringBuilder payload = new StringBuilder();
             Task task = taskService.getProcess(name,instance);
             Data data = new Data();
-            data.setAddress(slaveRepository.findAll().get(0).getAddress());
+            try {
+                data.setAddress(slaveRepository.findAll().get(0).getAddress());
+            }catch (Exception e){
+                throw new RuntimeException("Couldn't find running process");
+            }
             data.setPid(task.getPid());
             File file = new File(task.getPath());
             BufferedReader br = new BufferedReader(new FileReader(file));
