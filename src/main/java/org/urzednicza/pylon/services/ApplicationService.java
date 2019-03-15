@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinNT;
 import net.bytebuddy.matcher.CollectionOneToOneMatcher;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
@@ -23,6 +24,7 @@ import javax.annotation.PreDestroy;
 import javax.xml.ws.Response;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -91,9 +93,14 @@ public class ApplicationService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            String auth = Config.get("Nexus_login")+":"+Config.get("Nexus_password");
+            byte[] encodedAuth =  Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+            String authHeader = "Basic " + new String(encodedAuth);
+            headers.set("Authorization","Basic dXNlcjE6dXNlcjFQYXNz");
+            headers.set("Cookie","Idea-5d2f43b8=8f0e104f-bc57-4cc1-b02f-a5ca46507b22; JSESSIONID=63937B680C639994DB11F6F989F86342; YTJSESSIONID=10bxukdje998rfvtypvlz5brx");
             HttpEntity<String> request = new HttpEntity<String>(new ObjectMapper().writeValueAsString(slave), headers);
 
-            ResponseEntity<Long> response = restTemplate.postForEntity(Config.get("Nexus_url") + "/slave/register",request,Long.class);
+            ResponseEntity<Long> response = restTemplate.exchange(Config.get("Nexus_url") + "/slave/register",HttpMethod.POST,request,Long.class);
             SlaveInfo info = new SlaveInfo();
             info.setAddress(address);
             info.setSlaveId(response.getBody());
